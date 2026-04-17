@@ -1,0 +1,2 @@
+[*.cs]
+csharp_new_ine_before_open_brance = none

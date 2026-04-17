@@ -1,0 +1,60 @@
+@baseUrl = http://localhost:5205
+### 
+GET {{baseUrl}} api/tasks
+### 
+GET {{baseUrl}}/api/tasks?completed=true
+### 
+GET {{baseUrl}}/api/tasks?completed=false
+
+###c
+GET {{baseUrl}}/api/tasks/1
+
+###cc
+GET {{baseUrl}}/api/tasks/999
+
+###ccc
+POST {{baseUrl}}/api/tasks
+Content-Type: application/json
+{
+    "title": "Task REST Client",
+    "description": "create with .http",
+    "priority": "High"
+}
+
+###ccc
+POST {{baseUrl}}/api/tasks
+Content-Type: application/json
+{
+    "title": "",
+    "description": "text",
+    "priority": "Normal"
+}
+
+###cccc
+PATCH {{baseUrl}}/api/tasks/2/complete
+
+###cc
+PUT {{baseUrl}}/api/tasks/1
+Content-Type: application/json
+{
+    "title":"Study ASP.NET Core",
+    "description": "Controllers, paths, DTO",
+    "IsCompleted": true,
+    "priority": "High"
+}
+###ccc
+DELETE {{baseUrl}}/api/tasks/4
+###new PATCH
+PATCH {{baseUrl}}/api/tasks/2/complete
+###DELETE
+DELETE {{baseUrl}}/api/tasks/4
+###поиск задач
+GET {{baseUrl}}/api/tasks/search?query=ASP
+###Задачи с высоким приоритетом
+GET {{baseUrl}}/api/tasks/priority/High
+###статистика
+GET {{baseUrl}}/api/tasks/stats
+
+###отсортированные по приоритету
+GET {{baseUrl}}/api/tasks/sorted?by=priority&desc=false
+

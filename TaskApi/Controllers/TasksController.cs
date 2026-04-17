@@ -1,4 +1,5 @@
 using System.Collections;
+using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc;
 using TaskApi.Models;
@@ -115,5 +116,57 @@ public class TasksController : ControllerBase
         task.IsCompleted = !task.IsCompleted;
         return Ok(task);
 
+    }
+    [HttpGet("search")]
+    public ActionResult<IEnumerable<TaskItem>> Search([FromQuery] string query)
+    {
+        if (string.IsNullOrWhiteSpace(query)) return BadRequest(new { Message = "query not be empty" });
+
+        var results = _tasks.Where(t => t.Title.Contains(query, StringComparison.OrdinalIgnoreCase) || t.Description.Contains(query, StringComparison.InvariantCultureIgnoreCase))
+        .ToList();
+
+        return Ok(results);
+    }
+
+    [HttpGet("stats")]
+    public ActionResult GetStats()
+    {
+        var total = _tasks.Count;
+        var completed = _tasks.Count(t => t.IsCompleted);
+        var pending = total - completed;
+
+        var stats = new
+        {
+            Total = total,
+            Completed = completed,
+            Pending = pending,
+            CompletionPct = total > 0 ? Math.Round((double)completed / total * 100, 1) : 0,
+            ByPriority = new
+            {
+                High = _tasks.Count(t => t.Priority == "High"),
+                Normal = _tasks.Count(t => t.Priority == "Normal"),
+                Low = _tasks.Count(t => t.Priority == "Low"),
+            }
+        };
+        return Ok(stats);
+    }
+    [HttpGet("sorted")]
+    public ActionResult<IEnumerable<TaskItem>> GetSorted
+    (
+        [FromQuery] string by = "id",
+
+        [FromQuery] bool desc = false
+    )
+    {
+        IEnumerable<TaskItem> sorted = by.ToLower() switch
+        {
+            "title" => _tasks.OrderBy(t => t.Title),
+            "priority" => _tasks.OrderBy(t => t.Priority),
+            "createdat" => _tasks.OrderBy(t => t.CreatedAt),
+            _ => _tasks.OrderBy(t => t.Id),
+        };
+        if (desc)
+            sorted = sorted.Reverse();
+        return Ok(sorted);
     }
 }
